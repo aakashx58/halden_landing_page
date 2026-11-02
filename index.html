@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Halden: Hal, your AI teammate for port operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b1d3a;--ink-2:#1d2f4f;--accent:#5b7cf0;--dot:#2fe0d0;--panel:#0e1f3d;--panel-line:rgba(255,255,255,.12);--gut:clamp(20px,5.7vw,82px);--ease:cubic-bezier(.22,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:'Inter Tight',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.atmo{position:fixed;inset:0;z-index:0;pointer-events:none;background:#fff}
+.atmo canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+main{position:relative;z-index:1}
+
+/* nav */
+.nav{position:fixed;z-index:50;top:20px;left:var(--gut);right:var(--gut);height:60px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 22px;box-shadow:0 1px 0 rgba(11,29,58,.04),0 10px 30px -18px rgba(11,29,58,.25);opacity:0;transform:translateY(-8px);animation:navin .9s var(--ease) .15s forwards}
+@keyframes navin{to{opacity:1;transform:none}}
+.brand{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:500;letter-spacing:-.02em}
+.brand svg{width:22px;height:22px}
+.links{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:31px;font-size:14px;font-weight:500;letter-spacing:-.005em;opacity:.92}
+.links a{transition:opacity .2s}.links a:hover{opacity:.55}
+.right{display:flex;align-items:center}
+.login{font-size:14px;font-weight:500;padding:0 14px;transition:padding .35s var(--ease)}
+.navcta{width:42px;height:42px;overflow:hidden;border-radius:999px;margin-left:-42px;transform:scale(0);transform-origin:100% 50%;transition:transform .35s var(--ease),width .65s var(--ease) .22s,margin .35s var(--ease)}
+.navcta .btn{width:142px}
+.navcta .lbl{opacity:0;transition:opacity .4s .45s}
+.nav.on .navcta{width:142px;margin-left:16px;transform:scale(1)}
+.nav.on .navcta .lbl{opacity:1}
+.nav.on .login{padding-right:0}
+
+/* button */
+.btn{position:relative;display:inline-flex;align-items:center;height:42px;padding:0 46px 0 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:13.5px;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
+.dot{position:absolute;right:16px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--dot);box-shadow:0 0 10px rgba(47,224,208,.7);display:flex;align-items:center;justify-content:center;transition:width .45s var(--ease),height .45s var(--ease),margin .45s var(--ease),right .45s var(--ease),box-shadow .45s var(--ease)}
+.dot svg{width:12px;height:12px;flex:none;opacity:0;transform:translateX(-4px);transition:opacity .3s .05s,transform .45s var(--ease) .05s}
+.btn:hover .dot{width:32px;height:32px;margin-top:-16px;right:5px;box-shadow:none}
+.btn:hover .dot svg{opacity:1;transform:none}
+.btn.lg{height:62px;padding:0 62px 0 28px;font-size:17px}
+.btn.lg .dot{width:14px;height:14px;margin-top:-7px;right:24px}
+.btn.lg .dot svg{width:16px;height:16px}
+.btn.lg:hover .dot{width:48px;height:48px;margin-top:-24px;right:7px}
+
+/* hero */
+.hero{position:relative;height:100vh;min-height:640px}
+.hero>*{position:absolute}
+h1{top:21.5vh;left:var(--gut);font-weight:400;font-size:clamp(34px,4.65vw,70px);line-height:1.03;letter-spacing:-.035em;white-space:nowrap;color:var(--ink)}
+h1 .hl{color:var(--accent)}
+.trust{top:58vh;left:var(--gut);font-size:clamp(15px,1.28vw,19px);letter-spacing:-.015em;color:var(--ink-2)}
+.hero .btn.lg{bottom:7.5vh;left:var(--gut)}
+.fade-up{opacity:0;transform:translateY(14px)}
+body.ready .fade-up{animation:fu .9s var(--ease) forwards;animation-delay:var(--d)}
+@keyframes fu{to{opacity:1;transform:none}}
+.logos{right:0;width:50%;top:55vh;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr}
+.logos>div{position:relative;display:flex;align-items:center;justify-content:center;color:#3e4d68}
+.logos>div::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(rgba(11,29,58,.08),rgba(11,29,58,.05))}
+.logos>div:nth-child(n+5)::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(11,29,58,.06)}
+.mk{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;letter-spacing:.06em}
+.mk svg{height:20px;width:auto}
+
+/* statement */
+.statement{position:relative;height:306vh;margin-top:-31vh;pointer-events:none}
+.pin{position:sticky;top:0;height:100vh}
+#stmt{position:absolute;top:41.5vh;left:0;right:0;text-align:center;font-weight:400;font-size:clamp(20px,2.8vw,42px);line-height:1.16;letter-spacing:-.03em;white-space:nowrap;color:var(--ink);will-change:transform}
+
+/* split */
+.split{position:relative;z-index:2;background:var(--panel);color:#fff;min-height:100vh;display:grid;grid-template-columns:58.3% 41.7%}
+.l{position:relative;padding-left:var(--gut)}
+.l::before{content:"";position:absolute;left:var(--gut);top:0;bottom:0;width:1px;background:var(--panel-line)}
+h2{font-weight:400;font-size:clamp(32px,3.15vw,48px);line-height:1.08;letter-spacing:-.03em;padding:21vh 0 0 6.2vw;white-space:nowrap}
+#row{margin-top:6.4vh;border-top:1px solid var(--panel-line);display:grid;grid-template-columns:1fr 1.05fr;gap:24px;padding:3vh 6vw 0 6.2vw;opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+#row.in{opacity:1;transform:none}
+#row h3{font-weight:400;font-size:clamp(17px,1.4vw,21px)}
+#row p{font-size:clamp(13px,1.1vw,16px);line-height:1.38;color:rgba(255,255,255,.5);max-width:20em}
+#row b{color:#fff;font-weight:500}
+.r{position:relative;overflow:hidden}
+#ship{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:50% 60%}
+
+@media(max-width:820px){
+.links{display:none}
+.nav{height:54px;top:12px}
+.navcta{}.nav.on .navcta{margin-left:8px}.nav.on .login{padding-right:0}.login{padding:0 6px}
+h1{top:17vh;font-size:7.4vw;white-space:normal}
+.trust{top:44vh}
+.logos{width:100%;top:50vh;bottom:18vh}
+.logos .t{display:none}.mk{font-size:11px}
+.hero .btn.lg{bottom:6vh}
+#stmt{white-space:normal;font-size:23px;max-width:15em;margin:0 auto;padding:0 var(--gut)}
+#stmt br{display:none}
+.split{grid-template-columns:1fr;grid-template-rows:auto 70vh}
+h2{padding:16vh 0 0 6vw;white-space:normal}
+#row{grid-template-columns:1fr;padding:3vh 6vw 6vh}
+}
+</style>
+</head>
+<body>
+<div class="atmo"><canvas id="bg" width="96" height="60"></canvas></div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="11" fill="#5b7cf0"/><g stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M5 10.2c2.3-1.6 4.7-1.6 7 0s4.7 1.6 7 0"/><path d="M5 14.2c2.3-1.6 4.7-1.6 7 0s4.7 1.6 7 0"/></g></svg>Halden</a>
+  <nav class="links"><a href="#">Platform</a><a href="#">Solutions</a><a href="#">Security</a><a href="#">Company</a><a href="#">Resources</a></nav>
+  <div class="right">
+    <a class="login" href="#">Login</a>
+    <div class="navcta"><a class="btn" href="#"><span class="lbl">Get a demo</span><span class="dot"><svg viewBox="0 0 12 12" fill="none" stroke="#0b1d3a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg></span></a></div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <h1 id="h1">Meet <span class="hl">Hal</span>, your AI teammate<br>for port operators</h1>
+    <p class="trust fade-up" style="--d:1.15s">Port operators trust Halden</p>
+    <a class="btn lg fade-up" style="--d:1.3s" href="#">Get a demo<span class="dot"><svg viewBox="0 0 12 12" fill="none" stroke="#0b1d3a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2.5 8 6l-3.5 3.5"/></svg></span></a>
+    <div class="logos">
+      <div class="fade-up" style="--d:1.25s"><span class="mk"><svg viewBox="0 0 22 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 7c3-2.5 6-2.5 9 0s6 2.500 9 0"/><path d="M2 14c3-2.5 6-2.5 9 0s6 2.500 9 0"/></svg><span class="t">OCEANEX</span></span></div>
+      <div class="fade-up" style="--d:1.32s"><span class="mk" style="font:italic 700 15px Georgia,serif;letter-spacing:.02em"><span class="t">Nordhavn</span></span></div>
+      <div class="fade-up" style="--d:1.39s"><span class="mk"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="10" width="4.500" height="10" rx="1"/><rect x="7.500" y="5" width="4.500" height="15" rx="1"/><rect x="14" y="8" width="4.500" height="12" rx="1"/></svg><span class="t">BLUEGATE</span></span></div>
+      <div class="fade-up" style="--d:1.46s"><span class="mk" style="font-weight:500;letter-spacing:.32em;font-size:11px"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M10 3 18 17H2z"/></svg><span class="t">KELPWAY</span></span></div>
+      <div class="fade-up" style="--d:1.42s"><span class="mk" style="font-weight:800;font-size:16px;letter-spacing:-.02em;border:2px solid currentColor;border-radius:4px;padding:2px 7px"><span class="t">TIDELINE</span></span></div>
+      <div class="fade-up" style="--d:1.49s"><span class="mk"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 2v16M16 2v16M4 10h12"/></svg><span class="t">HARBORIX</span></span></div>
+      <div class="fade-up" style="--d:1.56s"><span class="mk" style="font-size:15px;font-weight:500;letter-spacing:.06em"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7.500"/><circle cx="10" cy="10" r="2" fill="currentColor" stroke="none"/></svg><span class="t">seaflux</span></span></div>
+      <div class="fade-up" style="--d:1.63s"><span class="mk" style="font-size:11px;letter-spacing:.24em"><svg viewBox="0 0 22 20" fill="currentColor"><path d="M0 19 8 4l4 7 3-4 7 12z"/></svg><span class="t">PORTERRA</span></span></div>
+    </div>
+  </section>
+
+  <section class="statement" id="statement"><div class="pin"><p id="stmt">Hal is an AI teammate<br> that tracks vessels, books berths, files customs,<br> coordinates crews, escalates and does anything<br> in between to keep a port moving</p></div></section>
+
+  <section class="split" id="split">
+    <div class="l">
+      <h2 id="h2">AI teammate that operates<br>like you work</h2>
+      <div id="row">
+        <h3>Port operators</h3>
+        <p><b>Berth faster. Clear more. Stop chasing manifests.</b> Hal runs scheduling, bookings, customs filings, and more - so your team stays focused on throughput and safety.</p>
+      </div>
+    </div>
+    <div class="r"><img id="ship" alt="Aerial view of a container ship sailing up a misty fjord" src="https://images.higgs.ai/?default=1&amp;output=webp&amp;url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20261029_050506_a830ff21-4c71-4272-bc39-b61cacb54463.png&amp;w=1400&amp;q=85"></div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const sstep=t=>(t=clamp(t))*t*(3-2*t);
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+
+/* ---------- letter reveal ---------- */
+function split(root){
+  const chars=[];
+  const mk=(txt,parent,hl)=>{
+    txt.split(/(\s+)/).forEach(w=>{
+      if(!w)return;
+      if(/^\s+$/.test(w)){parent.appendChild(document.createTextNode(w));return}
+      const ws=document.createElement('span');ws.style.cssText='display:inline-block;white-space:nowrap';
+      for(const c of w){const s=document.createElement('span');s.textContent=c;s.hl=hl;ws.appendChild(s);chars.push(s)}
+      parent.appendChild(ws);
+    });
+  };
+  (function walk(node,hl){
+    [...node.childNodes].forEach(n=>{
+      if(n.nodeType===3){const f=document.createDocumentFragment();mk(n.textContent,f,hl);node.replaceChild(f,n)}
+      else if(n.nodeName!=='BR')walk(n,hl||n.classList.contains('hl'));
+    });
+  })(root,false);
+  return chars;
+}
+const HL=hex('#5b7cf0');
+function paint(chars,p,spread,final,accent,ghost){
+  const n=chars.length,F=hex(final),A=hex(accent),G=hex(ghost);
+  chars.forEach((s,i)=>{
+    const t=clamp((p*(1+spread)-i/n)/spread);
+    let o=1,c,b=0;
+    if(t<.35){const k=t/.35;o=k;c=G;b=8-6.5*k}
+    else if(t<.7){const k=(t-.35)/.35;c=mix(G,A,k);b=1.5*(1-k)}
+    else{c=mix(A,s.hl?HL:F,(t-.7)/.3)}
+    s.style.color=`rgba(${c.map(Math.round)},${o})`;
+    s.style.filter=b>.01?`blur(${b}px)`:'';
+  });
+}
+const h1c=split($('h1')),stc=split($('stmt')),h2c=split($('h2'));
+const NAVY='#0b1d3a',BLUE='#3f7cff';
+paint(h1c,0,.35,NAVY,BLUE,'#ffffff');paint(stc,0,.16,NAVY,BLUE,'#ffffff');paint(h2c,0,.35,'#ffffff','#8fe6f4','#5c6f92');
+
+/* ---------- bowl ---------- */
+const KEYS=[0,.03,.08,.18,.40,.66,.87,1.15,1.43,1.8];
+const TAB={tip:[.30,.45,.65,.80,.95,1.05,1.05,1.10,1.30,2.40],half:[.34,.38,.38,.38,.38,.46,.66,.90,1.60,3.00],soft:[.22,.26,.22,.22,.19,.16,.13,.10,.10,.10]};
+function lerpTab(a,q){
+  if(q>=KEYS[9])return a[9];
+  let i=0;while(q>KEYS[i+1])i++;
+  return a[i]+(a[i+1]-a[i])*(q-KEYS[i])/(KEYS[i+1]-KEYS[i]);
+}
+const tgt={tip:.3,half:.34,soft:.22},cur={tip:-.3,half:.3,soft:.1};
+let intro=true,t0=0;
+const cv=$('bg'),cx=cv.getContext('2d'),img=cx.createImageData(96,60);
+const WHITE=[255,255,255],RIM=hex('#d2daff'),CORE=hex('#8fd5f1'),RND=.25,N=48;
+function drawBowl(t){
+  const asp=innerWidth/innerHeight;
+  const tip=cur.tip+Math.sin(t*.00033+1.3)*.02,half=cur.half+Math.sin(t*.0005)*.015,soft=cur.soft;
+  const X=[],Y=[];
+  for(let k=0;k<N;k++){const yy=-.3+(tip+.3)*k/(N-1);X.push(half*asp*Math.pow(Math.max(0,1-yy/tip),.72));Y.push(yy)}
+  const d=img.data;
+  for(let j=0;j<60;j++){
+    const py=(j+.5)/60;
+    for(let i=0;i<96;i++){
+      const px=Math.abs((i+.5)/96-.5)*asp;
+      let m=1e9;
+      for(let k=0;k<N-1;k++){
+        const ax=X[k],ay=Y[k],bx=X[k+1]-ax,by=Y[k+1]-ay;
+        const u=clamp(((px-ax)*bx+(py-ay)*by)/(bx*bx+by*by||1));
+        const dx=px-ax-bx*u,dy=py-ay-by*u,dd=dx*dx+dy*dy;
+        if(dd<m)m=dd;
+      }
+      let sd=Math.sqrt(m);
+      if(py<tip&&px<half*asp*Math.pow(1-py/tip,.72))sd=-sd;
+      sd-=RND;
+      const g=1-sstep((sd+soft)/(2*soft));
+      const c=g<.38?mix(WHITE,RIM,sstep(g/.38)):mix(RIM,CORE,sstep((g-.38)/.62));
+      const o=(j*96+i)*4;d[o]=c[0];d[o+1]=c[1];d[o+2]=c[2];d[o+3]=255;
+    }
+  }
+  cx.putImageData(img,0,0);
+}
+
+/* ---------- scroll ---------- */
+const nav=$('nav'),stmt=$('stmt'),split_=$('split'),row=$('row'),ship=$('ship');
+function onScroll(){
+  const H=innerHeight,q=scrollY/H;
+  for(const k in TAB)tgt[k]=lerpTab(TAB[k],q);
+  const s=clamp((q-.69)/.74);
+  stmt.style.transform=`translateY(${.205*(1-s)*(1-s)*H}px)`;
+  const p=clamp((q-.56)/2.03);
+  paint(stc,p,.16,NAVY,BLUE,'#ffffff');
+  nav.classList.toggle('on',p>.4);
+  const top=split_.getBoundingClientRect().top;
+  const p2=clamp((.8-top/H)/.65);
+  paint(h2c,p2,.35,'#ffffff','#8fe6f4','#5c6f92');
+  row.classList.toggle('in',p2>.92);
+  ship.style.transform=`scale(${1.08-.08*clamp(1-top/H)})`;
+}
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',onScroll);
+
+/* ---------- loops ---------- */
+function frame(now){
+  if(!t0)t0=now;
+  const e=(now-t0)/1000;
+  paint(h1c,clamp(e/1.25),.35,NAVY,BLUE,'#ffffff');
+  if(intro){
+    const k=sstep((e-.25)/1.05);
+    cur.tip=-.3+(tgt.tip+.3)*k;cur.half=.3+(tgt.half-.3)*k;cur.soft=.1+(tgt.soft-.1)*k;
+    if(e>1.3)intro=false;
+  }else for(const k in cur)cur[k]+=(tgt[k]-cur[k])*.12;
+  drawBowl(now);
+  if(e<1.3)onScroll();
+  requestAnimationFrame(frame);
+}
+onScroll();
+requestAnimationFrame(t=>{document.body.classList.add('ready');frame(t)});
+</script>
+</body>
+</html>
