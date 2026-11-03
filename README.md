@@ -2,6 +2,9 @@
 
 Landing hero for Halden, a fictional maritime-logistics AI company whose agent is called Hal. One HTML file, plain CSS, vanilla JS. No framework, no build step, no libraries.
 
+<img width="1903" height="896" alt="image" src="https://github.com/user-attachments/assets/866d7bfd-17e8-41fc-b43c-637c43b8b439" />
+
+
 ## Run
 
 Open `index.html` in a browser. It needs a network connection for two external assets:
